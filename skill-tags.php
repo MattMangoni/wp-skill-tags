@@ -102,7 +102,7 @@ if (!class_exists('Matt_Skill_Tags_Plugin'))
 
 		public function add_stylesheets()
 		{
-	        wp_register_style( 'skill_tags', plugins_url('skill-tags.css', __FILE__) );
+	        wp_register_style( 'skill_tags', plugins_url('css/skill-tags.css', __FILE__) );
 	        wp_enqueue_style( 'skill_tags' );
 		}
 
