@@ -27,22 +27,22 @@ if (!class_exists('Matt_Skill_Tags_Plugin'))
 	{
 		public function __construct()
 		{
-			add_action('admin_init', array(&$this, 'admin_init')); 
-			add_action('admin_menu', array(&$this, 'add_menu'));
-			add_action('wp_enqueue_scripts', array(&$this, 'add_stylesheets'));
-			add_shortcode('skill-tags', array(&$this, 'show_skill_tags'));
+			add_action('admin_init', array(&$this, 'admin_init')); // init
+			add_action('admin_menu', array(&$this, 'add_menu'));   // add plugin's menu to the dashboard
+			add_action('wp_enqueue_scripts', array(&$this, 'add_stylesheets')); // add the stylesheet
+			add_shortcode('skill-tags', array(&$this, 'show_skill_tags')); // register the shortcode
 		}
 
+		/*
+		 *
+		 * Callback for the admin_init action
+		 *
+		 */
 		public function admin_init()
-		{
-			$this->init_settings();
-		}
-
-		public function init_settings()
 		{
 			register_setting('matt_skill_tags_plugin-group', 'skill-fields');
 			
-			$tags = $this->get_tags();
+			$tags = explode(',', get_option('skill-fields'));
 			
 			foreach($tags as $tag)
 			{
@@ -51,19 +51,21 @@ if (!class_exists('Matt_Skill_Tags_Plugin'))
 			}
 		}
 
-		public function get_tags()
-		{
-			$tags = explode(',', get_option('skill-fields'));
-			return $tags;
-		}
-
-		// ADD THE OPTIONS PAGE TO THE WP DASHBOARD
+		/*
+		 *
+		 * Callback for the admin_menu function. Adds the options page to the dashboard
+		 *
+		 */
 		public function add_menu()
 		{
 			add_options_page('Skill Tags', 'Manage Skill Tags', 'manage_options', 'matt-skill-tags', array($this, 'settings_page'));
 		}
 
-		// DISPLAYS THE ACTUAL OPTIONs PAGE
+		/*
+		 *
+		 * Get the settings page and include it... it the user can [manage_options]
+		 *
+		 */
 		public function settings_page()
 		{
 			if(!current_user_can('manage_options')) 
@@ -74,45 +76,65 @@ if (!class_exists('Matt_Skill_Tags_Plugin'))
 			include(sprintf("%s/settings.php", dirname(__FILE__)));
 		}
 
+		/*
+		 *
+		 * Callback for the add_shortcode function
+		 *
+		 */
 		public function show_skill_tags($atts)
 		{
 
 			extract( shortcode_atts( array('tag' => ''), $atts ) );
 
-			$tag_name = $tag."-tags";
-
 			if ($tag != '')
 			{
+				$tag_name = $tag."-tags";
 				$skill_tags = explode(",", get_option($tag_name));
-
 				$text = '';
 
-				foreach ($skill_tags as $t)
+				if ($skill_tags[0] != '')
 				{
-					$text .= '<span class="tags">'.$t.'</span>';
-				}
 
-				return $text;
-			}
-			else
-			{
-				return "Nessun tag presente";
+					foreach ($skill_tags as $t)
+					{
+						$text .= '<span class="tags">'.$t.'</span>';
+					}
+
+					return $text;
+				}
+				else
+				{
+					return "Nessun tag presente";
+				}
 			}
 		}
 
+		/*
+		 *
+		 * Adding plugin's stylesheet (css/skill-tags.css) :P
+		 *
+		 */
 		public function add_stylesheets()
 		{
 	        wp_register_style( 'skill_tags', plugins_url('css/skill-tags.css', __FILE__) );
 	        wp_enqueue_style( 'skill_tags' );
 		}
 
-		// THIS WILL RUN WHEN THE PLUGIN IS ACTIVATED
+		/*
+		 *
+		 * THIS WILL RUN WHEN THE PLUGIN IS ACTIVATED
+		 *
+		 */
 		public static function activate()
 		{
 			//
 		}
 
-		// THIS WILL RUN WHEN THE PLUGIN IS DEACTIVATED
+		/*
+		 *
+		 * THIS WILL RUN WHEN THE PLUGIN IS DEACTIVATED
+		 *
+		 */		
 		public static function deactivate()
 		{
 			//
